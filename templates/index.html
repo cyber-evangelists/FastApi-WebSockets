@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CRUD</title>
+</head>
+
+<body>
+    <h1>Websocket CRUD</h1>
+    <form action="" onsubmit="Read(event)">
+        <button id="getPosts">Get all posts</button>
+    </form>
+    <ul id='messages'>
+    </ul>
+    <script>
+        var ws = new WebSocket("ws://localhost:8000/ws");
+        ws.onmessage = function (event) {
+            var messages = document.getElementById('messages')
+            var message = document.createElement('li')
+            var content = document.createTextNode(event.data)
+            message.appendChild(content)
+            messages.appendChild(message)
+        };
+        function Read(event) {
+            var input = document.getElementById("getPosts")
+            ws.send(input.value)
+            input.value = ''
+            event.preventDefault()
+        }
+    </script>
+</body>
+
+</html>
