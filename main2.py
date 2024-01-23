@@ -3,12 +3,25 @@ from fastapi import FastAPI, WebSocket, Form, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import json
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
+uri = "mongodb://localhost:27017/Posts"
+client = MongoClient(uri, server_api=ServerApi('1'))
+
+collection = client.get_database().get_collection('Web Socket CRUD')
+
+# Retrieve all documents in the collection
+result = collection.find()
+
+# Iterate over the result and print each document
+for document in result:
+    print(document)
 
 app = FastAPI()
 
 class PostSchema(BaseModel):
-    id: int
+    _id: int
     title: str
     text: str
 
@@ -111,7 +124,10 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             if data == "get_all_posts":
+                mongodb_posts = await db.posts.find().to_list(length=None)
+                posts = [PostSchema(**post) for post in mongodb_posts]
                 await websocket.send_text(f"The Posts are {posts}")
+                # await websocket.send_text(f"The Posts are {posts}")
             elif data.startswith("get_post_by_id:"):
                 post_id = int(data.split(":")[1])
                 post = next((p for p in posts if p.id == post_id), None)

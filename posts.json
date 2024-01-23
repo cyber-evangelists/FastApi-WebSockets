@@ -1,0 +1,68 @@
+[
+    {
+        "_id": {
+            "$oid": "65afcb9fad65d5b6a2ff8cd3"
+        },
+        "id": 1,
+        "title": "Penguins",
+        "text": "Penguins are a group of aquatic flightless birds."
+    },
+    {
+        "_id": {
+            "$oid": "65afcb9fad65d5b6a2ff8cd4"
+        },
+        "id": 2,
+        "title": "Tigers",
+        "text": "Tigers are the largest living cat species and a member of the genus panthera."
+    },
+    {
+        "_id": {
+            "$oid": "65afcb9fad65d5b6a2ff8cd5"
+        },
+        "id": 3,
+        "title": "Koalas",
+        "text": "Koala is arboreal herbivorous marsupial native to Australia."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd6423c1ea582e7cce76"
+        },
+        "title": "Penguins",
+        "text": "Penguins are a group of aquatic flightless birds."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd6423c1ea582e7cce77"
+        },
+        "title": "Tigers",
+        "text": "Tigers are the largest living cat species and a member of the genus panthera."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd6423c1ea582e7cce78"
+        },
+        "title": "Koalas",
+        "text": "Koala is an arboreal herbivorous marsupial native to Australia."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd947445ee80217c4c98"
+        },
+        "title": "Penguins",
+        "text": "Penguins are a group of aquatic flightless birds."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd947445ee80217c4c99"
+        },
+        "title": "Tigers",
+        "text": "Tigers are the largest living cat species and a member of the genus panthera."
+    },
+    {
+        "_id": {
+            "$oid": "65afcd947445ee80217c4c9a"
+        },
+        "title": "Koalas",
+        "text": "Koala is an arboreal herbivorous marsupial native to Australia."
+    }
+]
