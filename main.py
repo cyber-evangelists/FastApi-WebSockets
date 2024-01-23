@@ -1,8 +1,7 @@
 import uvicorn
-from fastapi import FastAPI, WebSocket, Form
+from fastapi import FastAPI, WebSocket, Form, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from model import PostSchema
 import json
 
 
@@ -27,25 +26,18 @@ html = """
         <form action="" onsubmit="getPostById(event)">
             <label for="postId">Enter Post ID:</label>
             <input type="number" id="postId" name="postId" required>
-
             <button type="submit">Get Post by ID</button>
 
         </form>
-         <form action="" onsubmit="addPost(event)">
+           <form action="" onsubmit="addPost(event)">
+            <label for="newId">Enter Post ID:</label>
+            <input type="number" id="newId" name="newpostId" required>
+            <label for="title">Enter title:</label>
+            <input type="text" id="title" name="newText" required>
+            <label for="posttext">Enter post text:</label>
+            <input type="text" id="posttext" name="posttext" required>
+            <button type="submit">Get Text</button>
 
-            <label for="postId">Enter New Post ID:</label>
-            <input type="number" id="postId" name="postId" required>
-
-            <label for="title">Enter Title:</label>
-            <input type="text" id="title" name="postId" required>
-
-            <label for="postText">Enter Post:</label>
-            <input type="text" id="postText" name="postId" required>
-
-               <button type="submit">Add new post</button>
-
-            
-           
         </form>
         <ul id='messages'>
         </ul>
@@ -69,26 +61,39 @@ html = """
                 ws.send("get_post_by_id:" + postId)
                 event.preventDefault()
             }
-              function addPost(event) {
-                var newpostId = document.getElementById("postId").value
-                var newposTitle = document.getElementById("title").value
-                var newpostText = document.getElementById("postText").value
-           
-
-                 var postData = {
-                    command: "add_new_post",
-                    postId: newpostId,
-                    title: newposTitle,
-                    text: newpostText
-                };
-                ws.send(JSON.stringify(postData));
-                event.preventDefault();
-          
+            function addPost(event)
+            {
+              var newpostId = document.getElementById("newId").value
+              var title=document.getElementById("title").value
+              var newtext=document.getElementById("posttext").value
+              ws.send("add_post:" + newpostId + ":" + title + ":" + newtext) 
+                event.preventDefault()
             }
         </script>
     </body>
 </html>
 """
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+manager = ConnectionManager()
+
 
 posts = [
     PostSchema(id=1, title="Penguins", text="Penguins are a group of aquatic flightless birds."),
@@ -103,20 +108,35 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        if data == "get_all_posts":
-            await websocket.send_text(f"The Posts are {posts}")
-        elif data.startswith("get_post_by_id:"):
-            post_id = int(data.split(":")[1])
-            post = next((p for p in posts if p.id == post_id), None)
-            if post:
-                await websocket.send_text(f"Post with ID {post_id}: {post}")
-            else:
-                await websocket.send_text(f"Post with ID {post_id} not found.")
+   await manager.connect(websocket)
+   try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "get_all_posts":
+                await websocket.send_text(f"The Posts are {posts}")
+            elif data.startswith("get_post_by_id:"):
+                post_id = int(data.split(":")[1])
+                post = next((p for p in posts if p.id == post_id), None)
+                if post:
+                    await websocket.send_text(f"Post with ID {post_id}: {post}")
+                else:
+                    await websocket.send_text(f"Post with ID {post_id} not found.")
 
-        # elif data.startswith("add_new_post"):
+            elif data.startswith("add_post:"):
+                newpostId = int(data.split(":")[1])
+                title = data.split(":")[2]  
+                newtext=data.split(":")[3]
+                
+                new_post = PostSchema(id=newpostId, title=title, text=newtext)
+
+                
+                posts.append(new_post)
+
+                await websocket.send_text(f"Post added: {new_post}")
+
+   except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
         
          
             
