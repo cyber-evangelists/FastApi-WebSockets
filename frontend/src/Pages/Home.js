@@ -28,6 +28,7 @@ const Home = () => {
       postId: "",
       title: "",
       postText: "",
+      deleteID: "",
     },
     onSubmit: () => {},
     validate: (values) => {
@@ -63,6 +64,16 @@ const Home = () => {
       ws.send(
         "add_post:" + ":" + formik.values.title + ":" + formik.values.postText
       );
+    }
+    event.preventDefault();
+  };
+  const handleDelete = (event) => {
+    if (!formik.values.deleteID) {
+      alert("Please enter id.");
+    } else if (/[^\w\d]/.test(formik.values.deleteID)) {
+      alert("ID cannot contain special characters");
+    } else {
+      ws.send("delete_post:" + formik.values.deleteID);
     }
     event.preventDefault();
   };
@@ -119,6 +130,21 @@ const Home = () => {
         <div className="row">
           <button onClick={handleRead} id="getpostsbyID">
             Get all posts
+          </button>
+        </div>
+        <div className="row">
+          <input
+            type="text"
+            id="deleteID"
+            name="deleteID"
+            required
+            value={formik.values.deleteID}
+            onChange={formik.handleChange}
+            pattern="[A-Za-z\s]+"
+            placeholder="Enter ID to Delete"
+          />
+          <button onClick={handleDelete} id="delteID">
+            Delete post
           </button>
         </div>
       </div>

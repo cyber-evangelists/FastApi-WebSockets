@@ -70,6 +70,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 except:
                     # await websocket.send_text(f"Invalid ID")
                     pass
+            
             elif data.startswith("add_post:"):
                 title = data.split(":")[2]  
                 newtext=data.split(":")[3]
@@ -81,5 +82,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 except Exception as e:
                 #  await websocket.send_text(f"Error in insertion")
                    pass
+            elif data.startswith("delete_post:"):
+                print('hello')
+                post_id = (data.split(":")[1])
+                try:
+                      postid_obj=ObjectId(post_id)
+                      result = collection.find_one_and_delete({"_id": postid_obj})
+                      print("post delete")
+                      if result:
+                       result['_id'] = str(result['_id'])
+                       await websocket.send_text(json.dumps(result))
+                      else:
+                        #   await websocket.send_text(f"Post with this ID does not exist")
+                          pass
+                except:
+                    # await websocket.send_text(f"Invalid ID")
+                    pass
    except WebSocketDisconnect:
            manager.disconnect(websocket)

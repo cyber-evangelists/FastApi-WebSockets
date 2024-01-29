@@ -10,7 +10,7 @@ The handshake is done inside a useEffect hook so that the handshake is done befo
 
 I am sending and receiving data in JSON format, however I am having trouble in recieving non Json data such as messages like Post Inserted.
 
-The data is shown in a table
+The data is shown in a table.
 
 # Backend
 
