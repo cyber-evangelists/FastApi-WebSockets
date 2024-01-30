@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useFormik } from "formik";
 import "./Home.css";
 
 const Home = () => {
@@ -12,141 +11,173 @@ const Home = () => {
     newWebSocket.onopen = () => {
       console.log("WebSocket connection opened");
     };
-
-    newWebSocket.onmessage = function (event) {
-      setMessages((prevMessages) => [...prevMessages, JSON.parse(event.data)]);
+    const MessageType = {
+      INVALID: "invalid",
+      INSERTED: "inserted",
+      DELETED: "deleted",
+      NOT_DELETED: "not deleted",
+      NOT_EXIST: "not exist",
     };
 
+    newWebSocket.onmessage = function (event) {
+      const data = event.data;
+      handleMessage(data);
+    };
+    const alertMessages = {
+      [MessageType.INVALID]: "Post with this ID does not exist",
+      [MessageType.INSERTED]: "Your post has been inserted successfully",
+      [MessageType.DELETED]: "Post has been deleted successfully",
+      [MessageType.NOT_DELETED]: "Your post could not be deleted",
+      [MessageType.NOT_EXIST]: "You have entered an invalid ID",
+    };
+    function handleMessage(data) {
+      const message = alertMessages[data];
+      if (message) {
+        displayAlert(message);
+      } else {
+        setMessages((prevMessages) => [...prevMessages, JSON.parse(data)]);
+      }
+    }
+    function displayAlert(message) {
+      alert(message);
+    }
     setWs(newWebSocket);
 
     return () => {
       newWebSocket.close();
     };
   }, []);
-  const formik = useFormik({
-    initialValues: {
-      postId: "",
-      title: "",
-      postText: "",
-      deleteID: "",
-    },
-    onSubmit: () => {},
-    validate: (values) => {
-      const errors = {};
-      return errors;
-    },
-  });
-
+  const ACTIONS = {
+    GET_ALL_POSTS: "get_all_posts",
+    GET_POST_BY_ID: "get_post_by_id",
+    ADD_POST: "add_post:",
+    DELETE_POST: "delete_post",
+  };
   const handleRead = (event) => {
-    ws.send("get_all_posts");
+    ws.send(ACTIONS.GET_ALL_POSTS);
     event.preventDefault();
   };
 
   const handleGetPostById = (event) => {
-    if (!formik.values.postId) {
-      alert("Please enter id.");
-    } else if (/[^\w\d]/.test(formik.values.postId)) {
-      alert("ID cannot contain special characters");
+    if (!formData.searchID) {
+      alert("ID cannot b empty");
+      return;
     } else {
-      ws.send("get_post_by_id:" + formik.values.postId);
+      ws.send(`${ACTIONS.GET_POST_BY_ID}:${formData.searchID}`);
     }
 
     event.preventDefault();
   };
   const handleAddPost = (event) => {
-    if (!formik.values.title || !formik.values.postText) {
-      alert("Title and Post Text are required.");
-    } else if (
-      /\d|[@$!%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(formik.values.title)
-    ) {
-      alert("Title cannot contain numbers or special characters.");
+    if (!formData.postText || !formData.postTitle) {
+      alert("Post Title or Text cannot be empty");
+      return;
     } else {
-      ws.send(
-        "add_post:" + ":" + formik.values.title + ":" + formik.values.postText
-      );
+      ws.send(`${ACTIONS.ADD_POST}:${formData.postTitle}:${formData.postText}`);
     }
     event.preventDefault();
   };
   const handleDelete = (event) => {
-    if (!formik.values.deleteID) {
-      alert("Please enter id.");
-    } else if (/[^\w\d]/.test(formik.values.deleteID)) {
-      alert("ID cannot contain special characters");
+    if (!formData.deleteID) {
+      alert("Please enter ID.");
     } else {
-      ws.send("delete_post:" + formik.values.deleteID);
+      ws.send(`${ACTIONS.DELETE_POST}:${formData.deleteID}`);
     }
     event.preventDefault();
+  };
+  const [formData, setFormData] = useState({
+    postText: "",
+    postTitle: "",
+    deleteID: "",
+    searchID: "",
+  });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "postTitle" && !/^[a-zA-Z\s]*$/.test(value)) {
+      alert("Please enter valid Title");
+
+      return;
+    }
+    if (name === "postText" && !/^[a-zA-Z\s]*$/.test(value)) {
+      alert("Please enter valid Text");
+      return;
+    }
+    if (name === "searchID" && !/^[a-zA-Z0-9]*$/.test(value)) {
+      alert("Please enter valid ID");
+      return;
+    }
+    if (name === "deleteID" && !/^[a-zA-Z0-9]*$/.test(value)) {
+      alert("Please enter valid ID");
+      return;
+    }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   return (
     <div>
       <div className="container form">
         <h1>Websocket CRUD</h1>
-        <div className="searchpost row">
-          <label htmlFor="postId">Search a Post:</label>
-          <input
-            type="text"
-            id="postId"
-            name="postId"
-            value={formik.values.postId}
-            onChange={formik.handleChange}
-            required
-            placeholder="Enter Post ID"
-          />
-          <button onClick={handleGetPostById} type="submit">
-            Get Post by ID
-          </button>
-          {formik.errors.postId && <div>{formik.errors.postId}</div>}
-        </div>
-        <div className="addpost row">
-          <label htmlFor="title">Add a new Post:</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formik.values.title}
-            onChange={formik.handleChange}
-            required
-            pattern="[A-Za-z\s]+"
-            placeholder="Enter Title"
-          />
+        <form onSubmit={handleGetPostById}>
+          <div className="searchpost row">
+            <label htmlFor="postId">Search a Post:</label>
+            <input
+              type="text"
+              id="searchID"
+              name="searchID"
+              value={formData.searchID}
+              onChange={handleInputChange}
+              placeholder="Enter Post ID"
+            />
+            <button type="submit">Get Post by ID</button>
+          </div>
+        </form>
+        <form onSubmit={handleAddPost}>
+          <div className="addpost row">
+            <label htmlFor="title">Add a new Post:</label>
+            <input
+              type="text"
+              id="postTitle"
+              name="postTitle"
+              value={formData.postTitle}
+              onChange={handleInputChange}
+              placeholder="Enter Title"
+            />
 
-          <input
-            type="text"
-            id="postText"
-            name="postText"
-            value={formik.values.postText}
-            onChange={formik.handleChange}
-            required
-            pattern="[A-Za-z\s]+"
-            placeholder="Enter Post Text"
-          />
-          <button onClick={handleAddPost} type="submit">
-            Add a new post
-          </button>
-          {formik.errors.title && <div>{formik.errors.title}</div>}
-          {formik.errors.postText && <div>{formik.errors.postText}</div>}
-        </div>
+            <input
+              type="text"
+              id="postText"
+              name="postText"
+              value={formData.postText}
+              onChange={handleInputChange}
+              placeholder="Enter Post Text"
+            />
+            <button type="submit">Add a new post</button>
+          </div>
+        </form>
+
         <div className="row">
           <button onClick={handleRead} id="getpostsbyID">
             Get all posts
           </button>
         </div>
-        <div className="row">
-          <input
-            type="text"
-            id="deleteID"
-            name="deleteID"
-            required
-            value={formik.values.deleteID}
-            onChange={formik.handleChange}
-            pattern="[A-Za-z\s]+"
-            placeholder="Enter ID to Delete"
-          />
-          <button onClick={handleDelete} id="delteID">
-            Delete post
-          </button>
-        </div>
+        <form onSubmit={handleDelete}>
+          <div className="row">
+            <input
+              type="text"
+              id="deleteID"
+              name="deleteID"
+              value={formData.deleteID}
+              onChange={handleInputChange}
+              placeholder="Enter ID to Delete"
+            />
+            <button type="submit" id="delteID">
+              Delete post
+            </button>
+          </div>
+        </form>
       </div>
       <div className="container">
         <table>
@@ -167,15 +198,6 @@ const Home = () => {
             ))}
           </tbody>
         </table>
-        {/* <ul>
-        {messages.map((message, index) => (
-          <li key={index}>
-            {message._id}
-            {message.title}
-            {message.text}
-          </li>
-        ))}
-      </ul> */}
       </div>
     </div>
   );

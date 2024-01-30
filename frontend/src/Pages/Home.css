@@ -9,12 +9,22 @@
     text-align: center;
     border: 2px solid black;
     border-radius: 5px;
+    color: #fff;
 }
 
 /* Home.css */
 .form {
     max-width: 600px;
+    background-color: black;
 
+}
+
+.form h1 {
+    color: #fff;
+}
+
+.searchpost label {
+    color: #fff;
 }
 
 .container {
@@ -22,7 +32,7 @@
     margin: 0 auto;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+
     border-radius: 8px;
 
 }

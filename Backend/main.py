@@ -1,10 +1,17 @@
+from decouple import config
 from fastapi import FastAPI, WebSocket, Form, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
-uri = "mongodb://localhost:27017/Posts"
+
+
+
+connection_str = config('uri')
+allowed_origin=config('origins')
+
+uri = connection_str 
 client = MongoClient(uri, server_api=ServerApi('1'))
 import json
 
@@ -12,7 +19,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[allowed_origin], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,16 +66,18 @@ async def websocket_endpoint(websocket: WebSocket):
             elif data.startswith("get_post_by_id:"):
                 post_id = (data.split(":")[1])
                 try:
+                      print("hello from try")
                       postid_obj=ObjectId(post_id)
+                      print('hello below')
+                      print(postid_obj)
                       result = collection.find_one({"_id": postid_obj})
                       if result:
                        result['_id'] = str(result['_id'])
                        await websocket.send_text(json.dumps(result))
                       else:
-                        #   await websocket.send_text(f"Post with this ID does not exist")
-                          pass
+                          await websocket.send_text(f"invalid")
                 except:
-                    # await websocket.send_text(f"Invalid ID")
+                    await websocket.send_text(f"not exist")
                     pass
             
             elif data.startswith("add_post:"):
@@ -78,25 +87,22 @@ async def websocket_endpoint(websocket: WebSocket):
                 document = { "title": title, "text": newtext}
                 try:
                   result = collection.insert_one(document)
-                #   await websocket.send_text("Post inserted successfully")
+                  await websocket.send_text("inserted")
                 except Exception as e:
-                #  await websocket.send_text(f"Error in insertion")
-                   pass
+                 await websocket.send_text(f"insertion error")
+                 pass
             elif data.startswith("delete_post:"):
-                print('hello')
                 post_id = (data.split(":")[1])
                 try:
                       postid_obj=ObjectId(post_id)
                       result = collection.find_one_and_delete({"_id": postid_obj})
-                      print("post delete")
                       if result:
-                       result['_id'] = str(result['_id'])
-                       await websocket.send_text(json.dumps(result))
+                        await websocket.send_text(f"deleted")
                       else:
-                        #   await websocket.send_text(f"Post with this ID does not exist")
-                          pass
+                        await websocket.send_text(f"not deleted")
+                          
                 except:
-                    # await websocket.send_text(f"Invalid ID")
+                    await websocket.send_text(f"not exist")
                     pass
    except WebSocketDisconnect:
            manager.disconnect(websocket)
