@@ -54,6 +54,7 @@ const Home = () => {
     DELETE_POST: "delete_post",
   };
   const handleRead = (event) => {
+    setMessages([]);
     ws.send(ACTIONS.GET_ALL_POSTS);
     event.preventDefault();
   };
@@ -63,6 +64,7 @@ const Home = () => {
       alert("ID cannot b empty");
       return;
     } else {
+      setMessages([]);
       ws.send(`${ACTIONS.GET_POST_BY_ID}:${formData.searchID}`);
     }
 
@@ -74,6 +76,8 @@ const Home = () => {
       return;
     } else {
       ws.send(`${ACTIONS.ADD_POST}:${formData.postTitle}:${formData.postText}`);
+      setMessages([]);
+      ws.send(ACTIONS.GET_ALL_POSTS);
     }
     event.preventDefault();
   };
@@ -82,6 +86,8 @@ const Home = () => {
       alert("Please enter ID.");
     } else {
       ws.send(`${ACTIONS.DELETE_POST}:${formData.deleteID}`);
+      setMessages([]);
+      ws.send(ACTIONS.GET_ALL_POSTS);
     }
     event.preventDefault();
   };
