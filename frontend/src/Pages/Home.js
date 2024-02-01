@@ -17,6 +17,8 @@ const Home = () => {
       DELETED: "deleted",
       NOT_DELETED: "not deleted",
       NOT_EXIST: "not exist",
+      VAL_ERROR: "validation error",
+      Ins_Error: "insertion error",
     };
 
     newWebSocket.onmessage = function (event) {
@@ -29,6 +31,8 @@ const Home = () => {
       [MessageType.DELETED]: "Post has been deleted successfully",
       [MessageType.NOT_DELETED]: "Your post could not be deleted",
       [MessageType.NOT_EXIST]: "You have entered an invalid ID",
+      [MessageType.VAL_ERROR]: "The format was not correct",
+      [MessageType.Ins_Error]: "There was an error in insertion",
     };
     function handleMessage(data) {
       const message = alertMessages[data];
@@ -47,6 +51,7 @@ const Home = () => {
       newWebSocket.close();
     };
   }, []);
+
   const ACTIONS = {
     GET_ALL_POSTS: "get_all_posts",
     GET_POST_BY_ID: "get_post_by_id",
@@ -62,6 +67,7 @@ const Home = () => {
   const handleGetPostById = (event) => {
     if (!formData.searchID) {
       alert("ID cannot b empty");
+      event.preventDefault();
       return;
     } else {
       setMessages([]);
@@ -73,21 +79,22 @@ const Home = () => {
   const handleAddPost = (event) => {
     if (!formData.postText || !formData.postTitle) {
       alert("Post Title or Text cannot be empty");
+      event.preventDefault();
       return;
     } else {
       ws.send(`${ACTIONS.ADD_POST}:${formData.postTitle}:${formData.postText}`);
       setMessages([]);
       ws.send(ACTIONS.GET_ALL_POSTS);
     }
-    event.preventDefault();
   };
   const handleDelete = (event) => {
     if (!formData.deleteID) {
       alert("Please enter ID.");
+      event.preventDefault();
+      return;
     } else {
-      ws.send(`${ACTIONS.DELETE_POST}:${formData.deleteID}`);
       setMessages([]);
-      ws.send(ACTIONS.GET_ALL_POSTS);
+      ws.send(`${ACTIONS.DELETE_POST}:${formData.deleteID}`);
     }
     event.preventDefault();
   };
@@ -100,7 +107,7 @@ const Home = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "postTitle" && !/^[a-zA-Z\s]*$/.test(value)) {
-      alert("Please enter valid Title");
+      alert("Please enter valid Ttile");
 
       return;
     }
