@@ -1,8 +1,6 @@
-Sure, I'll help you structure your project description into a README.md format suitable for a GitHub repository. This format will include sections commonly found in README files, such as project introduction, setup instructions, and usage details.
 
----
 
-# Project Title
+# FastApi-WebSockets
 
 ## Introduction
 This project is a full-stack application that consists of a React frontend and a Python backend. The frontend is responsible for rendering the user interface and handling user input, which includes validation and sanitization through the `useFormik` hook. It communicates with the backend via websockets, ensuring a seamless data exchange in JSON format, although it can handle non-JSON data types for specific messages.
