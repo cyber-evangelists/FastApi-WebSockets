@@ -73,11 +73,3 @@ Once both the frontend and backend are running, the application will facilitate 
 ## Contributing
 
 Contributions to the project are welcome. Please follow the standard fork and pull request workflow if you wish to contribute.
-
-## License
-
-Specify the project license here, if applicable.
-
----
-
-Feel free to customize this README.md template with specific details about your project, including its title, setup instructions, usage examples, and any other information that might be helpful for users or contributors.
