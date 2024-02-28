@@ -1,33 +1,85 @@
-# Project Description
+Sure, I'll help you structure your project description into a README.md format suitable for a GitHub repository. This format will include sections commonly found in README files, such as project introduction, setup instructions, and usage details.
 
-# Frontend
+---
 
-I have created a react frontend and a python backend, the react frontend sends request to the backend which has to be running at the time of the request, Once the handshake is done the frontend and backend both are connected.
+# Project Title
 
-I have used useFormik hook for input validation and sanitizing the input in react frontend.
+## Introduction
+This project is a full-stack application that consists of a React frontend and a Python backend. The frontend is responsible for rendering the user interface and handling user input, which includes validation and sanitization through the `useFormik` hook. It communicates with the backend via websockets, ensuring a seamless data exchange in JSON format, although it can handle non-JSON data types for specific messages.
 
-The handshake is done inside a useEffect hook so that the handshake is done before the components are mounted.
+The backend, developed in Python, leverages websockets to create an interactive communication channel with the frontend. It integrates MongoDB for data persistence, allowing for operations such as adding, retrieving, and searching posts. The system uses a `ConnectionManager` class to manage websocket connections securely and employs MongoDB's `ObjectID` for database entry identification.
 
-I am sending and receiving data in JSON format, however I am having trouble in recieving non Json data such as messages like Post Inserted.
+## Features
+- Real-time communication between frontend and backend using websockets.
+- Input validation and sanitization in the frontend using useFormik.
+- Data persistence with MongoDB, supporting CRUD operations on posts.
+- Secure websocket connection management.
 
-The data is shown in a table.
+## Prerequisites
+Before you start, ensure you have the following installed:
+- Node.js and npm (for the frontend)
+- Python 3.x (for the backend)
+- MongoDB (for database operations)
 
-# Backend
+## Setup and Installation
 
-In the main.py I have created an endpoint using websockets.
+### Frontend
+1. Clone the repository and navigate to the frontend directory:
+   ```bash
+   cd path/to/repository/frontend
+   ```
+2. Install the required npm packages:
+   ```bash
+   npm install
+   ```
 
-I have also integrated mongodb database here, now we can get all posts, search for a specific post and insert a new post into the database.
+### Backend
+1. Navigate to the backend directory from the root of the repository:
+   ```bash
+   cd path/to/repository/backend
+   ```
+2. Install the required Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-The code is passing commands like 'add_post' from the frontend, which is then verified inside the web socket endpoint, according to which the function is performed.
+## Running the Application
 
-We are using ConnectionManager class toestablish a secure web socket connection.
+### Frontend
+1. Start the frontend application with npm:
+   ```bash
+   npm start
+   ```
+   This will launch the React application, typically available at `http://localhost:3000`.
 
-We are using mongodb ObjectID to identify the entries in the database. The user searched id is being converted into ObjectID literal which is then compared to the ObjectID of mongodb.
+### Backend
+1. Start the backend server using uvicorn:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   This command will start the backend server, making it listen for incoming websocket connections and HTTP requests.
 
-# How to run
+## Usage
 
-Split the terminal into two
-Navigate to frontend in 1st and to backend in 2nd terminal using cd command
-run npm start for frontend
-run pip install -r requirements.txt in backend
-run uvicorn main:app --reload for backend
+Once both the frontend and backend are running, the application will facilitate real-time communication between the client and server. The React frontend allows users to perform actions such as viewing posts in a table, adding new posts, and searching for specific posts. These actions are communicated to the Python backend via websockets, which interacts with MongoDB to perform the requested operations.
+
+- **Adding a Post**: The user can add a new post through the frontend interface. This post is then sent to the backend, which inserts the post into the MongoDB database.
+- **Viewing Posts**: The frontend retrieves and displays posts from the backend in a table format.
+- **Searching for a Post**: Users can search for posts by ID through the frontend. The search query is handled by the backend, which performs the lookup in MongoDB.
+
+## Troubleshooting
+
+- **WebSocket Connection Issues**: Ensure both the frontend and backend servers are running and that there are no network issues preventing communication.
+- **Database Operations**: Verify that MongoDB is running and accessible by the backend server for operations to succeed.
+
+## Contributing
+
+Contributions to the project are welcome. Please follow the standard fork and pull request workflow if you wish to contribute.
+
+## License
+
+Specify the project license here, if applicable.
+
+---
+
+Feel free to customize this README.md template with specific details about your project, including its title, setup instructions, usage examples, and any other information that might be helpful for users or contributors.
